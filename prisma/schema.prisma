@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+  model Datospersonales {
+    id        Int    @id @default(autoincrement())
+    Edad      Int
+    Nombre    String @default("")
+    Barrio    String
+    Sexo      String
+    EdadMin   Int
+    EdadMax   Int
+    Cumpleaos String
+    Mail      String @unique
+    Password  String
+
+    @@map("datospersonales")
+  }
+
+  model intereses {
+    id      Int    @id @default(autoincrement())
+    Interes String @unique
+
+    @@map("intereses")
+  }
+
+  model interesesusuarios {
+    id        Int @id @default(autoincrement())
+    IdUsuario Int
+    IdInteres Int
+  }
