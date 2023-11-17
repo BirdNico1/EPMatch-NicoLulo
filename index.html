@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EPMATCH Frontend</title>
+</head>
+<body>
+
+  <h1>EPMATCH Frontend</h1>
+
+  <h2>Create User</h2>
+  <form id="createUserForm">
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" name="nombre" required>
+    <br>
+    <label for="mail">Mail:</label>
+    <input type="email" id="mail" name="mail" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br>
+    <label for="edad">Edad:</label>
+    <input type="number" id="edad" name="edad" required>
+    <br>
+    <label for="barrio">Barrio:</label>
+    <input type="text" id="barrio" name="barrio" required>
+    <br>
+    <label for="sexo">Sexo:</label>
+    <input type="text" id="sexo" name="sexo" required>
+    <br>
+    <label for="edadMin">EdadMin:</label>
+    <input type="number" id="edadMin" name="edadMin" required>
+    <br>
+    <label for="edadMax">EdadMax:</label>
+    <input type="number" id="edadMax" name="edadMax" required>
+    <br>
+    <label for="cumpleanos">Cumpleaños:</label>
+    <input type="text" id="cumpleanos" name="cumpleanos" required>
+    <br>
+    <button type="button" onclick="createUser()">Crear Usuario</button>
+  </form>
+
+  <h2>Find User</h2>
+  <form id="findUserForm">
+    <label for="mailFind">Mail:</label>
+    <input type="email" id="mailFind" name="mailFind" required>
+    <br>
+    <label for="passwordFind">Password:</label>
+    <input type="password" id="passwordFind" name="passwordFind" required>
+    <br>
+    <button type="button" onclick="findUser()">Encontrar Usuario</button>
+  </form>
+  <div id="findUserResult"></div>
+  <div id="activityPage" style="display: none;">
+    <h2>Elige tus actividades</h2>
+    <form id="activityForm">
+      <label for="activities">Actividades:</label>
+      <select id="activities" name="activities" multiple>
+        <option value="Ajedrez">Ajedrez</option>
+        <option value="Bailar">Bailar</option>
+        <option value="Cine">Cine</option>
+        <option value="Cocinar">Cocinar</option>
+        <option value="Dados">Dados</option>
+        <option value="Deportes">Deportes</option>
+        <option value="Leer">Leer</option>
+        <option value="Novelas">Novelas</option>
+        <option value="Pasear">Pasear</option>
+        <option value="Poker">Poker</option>
+        <option value="Política">Política</option>
+        <option value="Reality">Reality</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Teatro">Teatro</option>
+        <option value="Tejer">Tejer</option>
+        <option value="Truco">Truco</option>
+      </select>
+      <br>
+      <button type="button" onclick="registerActivities()">Guardar Actividades</button>
+    </form>
+  </div>
+
+  <script>
+    async function createUser() {
+      const nombre = document.getElementById('nombre').value;
+      const mail = document.getElementById('mail').value;
+      const password = document.getElementById('password').value;
+      const edad = document.getElementById('edad').value;
+      const barrio = document.getElementById('barrio').value;
+      const sexo = document.getElementById('sexo').value;
+      const edadMin = document.getElementById('edadMin').value;
+      const edadMax = document.getElementById('edadMax').value;
+      const cumpleanos = document.getElementById('cumpleanos').value;
+
+      const response = await fetch('http://localhost:3001/CreateUser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          Nombre: nombre,
+          Mail: mail,
+          Password: password,
+          Edad: parseInt(edad),
+          Barrio: barrio,
+          Sexo: sexo,
+          EdadMin: parseInt(edadMin),
+          EdadMax: parseInt(edadMax),
+          Cumpleaos: cumpleanos
+        }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+      alert("Usuario creado");
+    }
+
+    async function findUser() {
+      const mailFind = document.getElementById('mailFind').value;
+      const passwordFind = document.getElementById('passwordFind').value;
+
+    
+      const response = await fetch('http://localhost:3001/FindUser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ Mail: mailFind, Password: passwordFind }),
+      });
+
+      const data = await response.json();
+      if(data === null){
+        alert("Usuario no encontrado");
+      }
+      const resultDiv = document.getElementById('findUserResult');
+
+      // Mostrar el usuario encontrado en el div
+      resultDiv.innerHTML = JSON.stringify(data, null, 2);
+      userId = data.id;
+      showActivityPage();
+    }
+
+    var userId;
+    function showActivityPage() {
+    // alert(userId)
+      // Mostrar la página de actividades después de encontrar el usuario
+      document.getElementById('activityPage').style.display = 'block';
+    }
+
+    async function registerActivities() {
+
+      const selectedActivities = Array.from(document.getElementById('activities').selectedOptions)
+        .map(option => option.value);
+
+      const response = await fetch('http://localhost:3001/RegisterActivity', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, activities: option }),
+      });
+      alert("Actividades guardadas");
+      const data = await response.json();
+      console.log(data);
+    }
+  </script>
+</body>
+</html>
