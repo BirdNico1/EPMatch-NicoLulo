@@ -137,7 +137,7 @@
           }
       })
       if(avoidRepeat.length > 0){
-          res.send("Ya estas registrado en esta actividad");
+          res.status(505).json("Ya estas registrado en esta actividad");
       }
       else{
 
@@ -148,7 +148,7 @@
 
           }
       })
-      res.json(register);
+      res.status(200).json(register);
       }
       }
       else{

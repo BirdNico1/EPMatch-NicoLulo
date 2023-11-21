@@ -55,25 +55,57 @@
   <div id="activityPage" style="display: none;">
     <h2>Elige tus actividades</h2>
     <form id="activityForm">
-      <label for="activities">Actividades:</label>
-      <select id="activities" name="activities" multiple>
-        <option value="Ajedrez">Ajedrez</option>
-        <option value="Bailar">Bailar</option>
-        <option value="Cine">Cine</option>
-        <option value="Cocinar">Cocinar</option>
-        <option value="Dados">Dados</option>
-        <option value="Deportes">Deportes</option>
-        <option value="Leer">Leer</option>
-        <option value="Novelas">Novelas</option>
-        <option value="Pasear">Pasear</option>
-        <option value="Poker">Poker</option>
-        <option value="Política">Política</option>
-        <option value="Reality">Reality</option>
-        <option value="Shopping">Shopping</option>
-        <option value="Teatro">Teatro</option>
-        <option value="Tejer">Tejer</option>
-        <option value="Truco">Truco</option>
-      </select>
+      <label>Actividades:</label>
+      <br>
+  
+      <input type="checkbox" id="activity1" name="activity" value="Ajedrez">
+      <label for="activity1">Ajedrez</label>
+  
+      <input type="checkbox" id="activity16" name="activity" value="Bailar">
+      <label for="activity16">Bailar</label>
+  
+      <input type="checkbox" id="activity10" name="activity" value="Cine">
+      <label for="activity10">Cine</label>
+  
+      <input type="checkbox" id="activity13" name="activity" value="Cocinar">
+      <label for="activity13">Cocinar</label>
+  
+      <input type="checkbox" id="activity4" name="activity" value="Dados">
+      <label for="activity4">Dados</label>
+  
+      <input type="checkbox" id="activity6" name="activity" value="Deportes">
+      <label for="activity6">Deportes</label>
+  
+      <input type="checkbox" id="activity15" name="activity" value="Leer">
+      <label for="activity15">Leer</label>
+  
+      <input type="checkbox" id="activity5" name="activity" value="Novelas">
+      <label for="activity5">Novelas</label>
+  
+      <input type="checkbox" id="activity12" name="activity" value="Pasear">
+      <label for="activity12">Pasear</label>
+  
+      <input type="checkbox" id="activity3" name="activity" value="Poker">
+      <label for="activity3">Poker</label>
+  
+      <input type="checkbox" id="activity7" name="activity" value="Política">
+      <label for="activity7">Política</label>
+  
+      <input type="checkbox" id="activity8" name="activity" value="Reality">
+      <label for="activity8">Reality</label>
+  
+      <input type="checkbox" id="activity11" name="activity" value="Shopping">
+      <label for="activity11">Shopping</label>
+  
+      <input type="checkbox" id="activity9" name="activity" value="Teatro">
+      <label for="activity9">Teatro</label>
+  
+      <input type="checkbox" id="activity14" name="activity" value="Tejer">
+      <label for="activity14">Tejer</label>
+  
+      <input type="checkbox" id="activity2" name="activity" value="Truco">
+      <label for="activity2">Truco</label>
+  
       <br>
       <button type="button" onclick="registerActivities()">Guardar Actividades</button>
     </form>
@@ -147,21 +179,30 @@
     }
 
     async function registerActivities() {
+    const selectedActivities = Array.from(document.getElementsByName('activity'))
+      .filter(checkbox => checkbox.checked)
+      .map(checkbox => checkbox.value);
 
-      const selectedActivities = Array.from(document.getElementById('activities').selectedOptions)
-        .map(option => option.value);
+    if (selectedActivities.length === 0) {
+      alert("Selecciona al menos una actividad");
+      return;
+    }
 
+    for (const activityId of selectedActivities) {
+      console.log(userId, activityId)
       const response = await fetch('http://localhost:3001/RegisterActivity', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId, activities: option }),
+        body: JSON.stringify({ userId, activity: activityId }),
       });
-      alert("Actividades guardadas");
       const data = await response.json();
       console.log(data);
     }
+
+    alert("Actividades guardadas");
+  }
   </script>
 </body>
 </html>
