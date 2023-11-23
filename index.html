@@ -228,8 +228,14 @@
         },
         body: JSON.stringify({ userId, activity: activityId }),
       });
+      if(response!=null){
       const data = await response.json();
       console.log(data);
+      }
+      else{
+        console.log("La actividad: " + activityId + " ya estaba registrada")
+      }
+
     }
 
     alert("Actividades guardadas");
