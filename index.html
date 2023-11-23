@@ -8,7 +8,7 @@
 <body>
 
   <h1>EPMATCH Frontend</h1>
-
+  <div id="loginRegister">
   <h2>Create User</h2>
   <form id="createUserForm">
     <label for="nombre">Nombre:</label>
@@ -51,7 +51,18 @@
     <br>
     <button type="button" onclick="findUser()">Encontrar Usuario</button>
   </form>
-  <div id="findUserResult"></div>
+
+</div>
+  <div id="findUserResult">
+
+    <div id="loggedInActions" style="display: none;">    
+      <button type="button" style="background-color: red" onclick="logout()">Cerrar Sesion</button>
+
+      <button type="button" onclick="showRegisterActivity()">Agregar Actividad</button>
+      <button type="button" onclick="showMatchedUsers()">Personas con mismos intereses</button>
+    </div>
+
+  </div>
   <div id="activityPage" style="display: none;">
     <h2>Elige tus actividades</h2>
     <form id="activityForm">
@@ -110,8 +121,20 @@
       <button type="button" onclick="registerActivities()">Guardar Actividades</button>
     </form>
   </div>
+  <div id="userActivitiesPage" style="display: none;">
+    <h2>Actividades del Usuario</h2>
+    <div id="userActivitiesResult"></div>
+  </div>
+  <div id="matchedUsersPage" style="display: none;">
+    <h2>Usuarios Matcheados</h2>
+    <div id="matchedUsersResult"></div>
+  </div>
+  
 
   <script>
+    async function logout() {
+      window.location.reload();
+    }
     async function createUser() {
       const nombre = document.getElementById('nombre').value;
       const mail = document.getElementById('mail').value;
@@ -144,6 +167,7 @@
       const data = await response.json();
       console.log(data);
       alert("Usuario creado");
+
     }
 
     async function findUser() {
@@ -165,17 +189,24 @@
       }
       const resultDiv = document.getElementById('findUserResult');
 
+
       // Mostrar el usuario encontrado en el div
-      resultDiv.innerHTML = JSON.stringify(data, null, 2);
+      resultDiv.innerHTML += JSON.stringify(data, null, 2);
       userId = data.id;
-      showActivityPage();
+      const loginRegisterDiv = document.getElementById('loginRegister');
+      loginRegisterDiv.style.display = 'none';
+      document.getElementById('loggedInActions').style.display = 'block';
+      
     }
 
     var userId;
-    function showActivityPage() {
+    function showRegisterActivity() {
     // alert(userId)
       // Mostrar la página de actividades después de encontrar el usuario
       document.getElementById('activityPage').style.display = 'block';
+      document.getElementById('matchedUsersPage').style.display = 'none';
+      document.getElementById('userActivitiesPage').style.display = 'none';
+
     }
 
     async function registerActivities() {
@@ -202,6 +233,90 @@
     }
 
     alert("Actividades guardadas");
+    document.getElementById('activityPage').style.display = 'none';
+    showUserActivitiesPage();
+    showMatchedUsers();
+  }
+
+  
+async function showMatchedUsers() {
+  showUserActivitiesPage();
+  document.getElementById('activityPage').style.display = 'none';
+
+  const response = await fetch('http://localhost:3001/Match', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ userId }),
+  });
+
+  const matchedUsers = await response.json();
+  const matchedUsersResultDiv = document.getElementById('matchedUsersResult');
+
+  // Limpiar el contenido anterior
+  matchedUsersResultDiv.innerHTML = '';
+
+  // Mostrar los usuarios matcheados
+  for (const user of matchedUsers) {
+  var actividadesEnComun = "";
+  for (const activity of user.actividadesEnComun) {
+    actividadesEnComun += `<strong>${activity.Interes}</strong>, `;
+  }
+  const userDiv = document.createElement('div');
+  userDiv.innerHTML = `Nombre: <strong>${user.Nombre}</strong>, Mail: ${user.Mail}, Edad: ${user.Edad}, Barrio: ${user.Barrio}, Sexo: ${user.Sexo}, Actividades en común: ${actividadesEnComun}`;
+  matchedUsersResultDiv.appendChild(userDiv);
+}
+  // Mostrar la página de usuarios matcheados
+  document.getElementById('matchedUsersPage').style.display = 'block';
+}
+
+  async function showUserActivitiesPage() {
+    const response = await fetch('http://localhost:3001/GetActivities', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await response.json();
+    const resultDiv = document.getElementById('userActivitiesResult');
+    
+    // Limpiar el contenido anterior
+    resultDiv.innerHTML = '';
+
+    // Mostrar todas las actividades del usuario
+    var i = 0;
+    for (const activity of data) {
+        const activityDiv = document.createElement('div');
+        const deleteButton = document.createElement('button');
+        deleteButton.style.color = 'red';
+
+        deleteButton.textContent = 'Borrar';
+        deleteButton.addEventListener('click', () => deleteActivity(activity.Interes));
+
+        activityDiv.textContent = `${i + 1}: ${activity.Interes}`;
+        activityDiv.appendChild(deleteButton);
+        resultDiv.appendChild(activityDiv);
+        i++;
+      }
+
+    // Mostrar la página de actividades del usuario
+    document.getElementById('userActivitiesPage').style.display = 'block';
+  }
+
+  async function deleteActivity(actividad) {
+    const response = await fetch('http://localhost:3001/DeleteActivity', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId, activity: actividad }),
+    });
+    const data = await response.json();
+    alert("Actividad " + actividad + " borrada")
+    showUserActivitiesPage();
+    showMatchedUsers();
   }
   </script>
 </body>

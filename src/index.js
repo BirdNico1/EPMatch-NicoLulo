@@ -157,17 +157,27 @@
       
   })
   app.post('/DeleteActivity', async (req, res) => {
-    try {
-      const { userId, activity } = req.body;
-      const deleteActivity = await prisma.interesesusuarios.deleteMany({
-        where: {
-          IdUsuario: userId,
-          IdInteres: activity,
-        },
-      });
+    const { userId, activity } = req.body;
 
+    try {
+      const find = await prisma.intereses.findUnique({
+        where:{
+            "Interes": activity
+        }
+      })
+    if(find != null){
+    const activityId = find.id;
+    const deleteActivity = await prisma.interesesusuarios.deleteMany({
+        where:{
+            "IdUsuario": userId,
+            "IdInteres": activityId
+        }
+    })
+      
       res.json(deleteActivity);
-    } catch (error) {
+    }
+   }
+    catch (error) {
       console.error('Error al eliminar la actividad:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
@@ -275,6 +285,7 @@
         id: idUsuario,
       },
       select: {
+        Nombre: true,
         id: true,
         Mail: true,
         Edad: true,
