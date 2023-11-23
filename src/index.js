@@ -148,7 +148,7 @@
 
           }
       })
-      res.status(200).json(register);
+      res.json(register);
       }
       }
       else{
